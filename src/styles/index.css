@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0c0a09;
+    color: #fff7ed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: 'Oswald', system-ui, -apple-system, sans-serif;
+  }
+}

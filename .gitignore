@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build
+dist/
+dist-ssr/
+*.local
+
+# Environment variables (keep .env.example committed)
+.env
+.env.*
+!.env.example
+
+# Firebase & Cloud credentials / emulators
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+pubsub-debug.log*
+storage-debug.log*
+emulator-data/
+*service-account*.json
+*credentials*.json
+
+# Testing & Coverage
+coverage/
+playwright-report/
+test-results/
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

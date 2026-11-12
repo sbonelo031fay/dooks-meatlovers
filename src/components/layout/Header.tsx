@@ -65,18 +65,18 @@ export function Header({ displayName, isSampleData }: HeaderProps) {
           <NavLink to="/menu" className={navLinkClass}>
             Full Menu
           </NavLink>
-          <a
-            href="/#custom-cakes"
+          <Link
+            to="/#custom-cakes"
             className="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold uppercase tracking-wider text-orange-100 hover:bg-stone-800 hover:text-orange-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             Custom Cakes
-          </a>
-          <a
-            href="/#visit-us"
+          </Link>
+          <Link
+            to="/#visit-us"
             className="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold uppercase tracking-wider text-orange-100 hover:bg-stone-800 hover:text-orange-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
           >
             Visit &amp; Contact
-          </a>
+          </Link>
         </nav>
 
         {/* Mobile Hamburger Button (minimum 44x44px tap target) */}
@@ -146,20 +146,20 @@ export function Header({ displayName, isSampleData }: HeaderProps) {
             >
               Full Menu
             </NavLink>
-            <a
-              href="/#custom-cakes"
+            <Link
+              to="/#custom-cakes"
               onClick={() => setMobileMenuOpen(false)}
               className="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold uppercase tracking-wider text-orange-100 hover:bg-stone-800 rounded-lg"
             >
               Custom Cakes
-            </a>
-            <a
-              href="/#visit-us"
+            </Link>
+            <Link
+              to="/#visit-us"
               onClick={() => setMobileMenuOpen(false)}
               className="inline-flex min-h-[44px] items-center px-3 py-2 text-sm font-semibold uppercase tracking-wider text-orange-100 hover:bg-stone-800 rounded-lg"
             >
               Visit &amp; Contact
-            </a>
+            </Link>
           </div>
         </nav>
       )}

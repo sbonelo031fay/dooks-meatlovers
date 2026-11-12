@@ -1,10 +1,24 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useBusinessSettings } from '../../features/business/useBusinessSettings';
 import { Footer } from './Footer';
 import { Header } from './Header';
 
 export function PublicLayout() {
   const { settings } = useBusinessSettings();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-950 text-orange-50 overflow-x-hidden">

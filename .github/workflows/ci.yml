@@ -41,10 +41,10 @@ jobs:
       - name: Run Vitest unit tests
         run: npm test
 
-      - name: Build production bundle (relative base path + SPA 404 fallback)
+      - name: Build production bundle (GitHub Pages subpath + SPA 404 fallback)
         env:
           VITE_DEMO_MODE: 'true'
-          VITE_BASE_PATH: './'
+          VITE_BASE_PATH: '/dooks-meatlovers/'
         run: |
           npm run build
           cp dist/index.html dist/404.html

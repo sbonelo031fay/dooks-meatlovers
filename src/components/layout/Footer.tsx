@@ -62,20 +62,20 @@ export function Footer({ settings }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <a
-                  href="/#custom-cakes"
+                <Link
+                  to="/#custom-cakes"
                   className="inline-block py-1 text-stone-300 hover:text-orange-100 underline-offset-4 hover:underline"
                 >
                   Custom Cake Quotes
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="/#visit-us"
+                <Link
+                  to="/#visit-us"
                   className="inline-block py-1 text-stone-300 hover:text-orange-100 underline-offset-4 hover:underline"
                 >
                   Location &amp; Opening Hours
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

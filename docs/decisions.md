@@ -1,30 +1,12 @@
-# Architectural Decision Log (`docs/decisions.md`)
+# Decisions — 2 November 2026
 
-All significant technical, architectural, and scope decisions are recorded here chronologically.
-
----
-
-## ADR-001: Initialize Project in Standard Portable Directory Structure
-- **Date**: 2026-11-02
-- **Status**: Accepted
-- **Context**: The workspace inspection showed no pre-existing `dooks-meatlovers` folder in the active Antigravity scratch directory (`C:\Users\fayes\.gemini\antigravity\scratch`). The project must be started in Antigravity, pushed to a single private GitHub repository (`dooks-meatlovers`), and seamlessly continued in VS Code with Codex on a personal machine outside OneDrive.
-- **Decision**: Create `dooks-meatlovers` using standard Vite + React + TypeScript + npm tooling with zero proprietary Antigravity runtime dependencies, and document all project knowledge in `docs/` and `AGENTS.md`.
-- **Consequences**: Any developer or AI agent can clone the repository, run `npm ci`, and continue work from the exact milestone recorded in `docs/progress.md`.
-
----
-
-## ADR-002: Repository Pattern with Zod Runtime Validation and Explicit Demo Fixtures
-- **Date**: 2026-11-02
-- **Status**: Accepted
-- **Context**: Public UI development (Milestone 2) precedes live Firestore integration (Milestone 3), and TypeScript compile-time types do not guarantee the validity of stored Firestore documents at runtime.
-- **Decision**: Introduce a thin repository layer (`src/repositories/`) that validates data via Zod schemas (`src/features/menu/` and `src/features/business/`). Support a clearly labelled Demo/Fixture mode for local UI development and testing, while ensuring live mode never silently falls back to fake sample data if Firestore fails.
-- **Consequences**: UI components remain decoupled from Firebase SDK internals, invalid records fail safely, and visitors are never misled by sample prices in production.
-
----
-
-## ADR-003: Defer Firebase Cloud Storage Photo Uploads Until Blaze Plan Approval
-- **Date**: 2026-11-02
-- **Status**: Accepted
-- **Context**: Cloud Storage for Firebase requires the Blaze pay-as-you-go billing plan. No paid services may be enabled without explicit owner/developer billing approval.
-- **Decision**: Retain the complete `image: { url, storagePath, alt }` data contract in `menuItems`, but use repository-hosted static images (`storagePath: null`, `url: '/images/...'`) initially. Gate the live Storage upload component behind explicit billing approval.
-- **Consequences**: Zero unexpected cloud billing during initial development and launch, with no schema migration required if Cloud Storage is enabled later.
+- Complete usable private React preview authorised by the current user request; public release remains forbidden without approval.
+- Vite static app with standard React/TypeScript; private Sites deployment now, optional Firebase Hosting later.
+- Demo repository first, with a real lazy-loaded read adapter and explicit Firebase configuration. No cloud fallback to fixtures on errors.
+- Historical poster guide prices are visibly qualified. Contact/WhatsApp disabled pending confirmation.
+- Local enquiry/cake message drafting rather than order placement. No customer account, checkout or backend personal-data writes.
+- Reuse approved food screenshots, crop out social UI/notifications and record attribution in the asset manifest. No image hotlinks.
+- Use a readable shared CSS file rather than introducing Tailwind for this preview. Keep feature/repository boundaries as in the original blueprint.
+- Self-host fonts to avoid waiting for external font servers.
+- Include a private unlinked responsive QA harness; it sizes a real iframe to 360/390/768/1366px. It does not claim a physical-phone test.
+- Deliver source ZIP and Git instructions. Connected GitHub tooling does not expose repository creation; no personal GitHub repository is claimed.

@@ -1,0 +1,7 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Repository-hosted images in this version. No uploads or reads enabled.
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

@@ -1,43 +1,17 @@
-# Owner Handover & Operations Guide (`docs/handover.md`)
+# Owner and developer handover
 
-> **Status**: Initial template created in Milestone 0. Specific production URLs and final workflows will be completed in Milestone 6 prior to release.
+## Use this preview
 
-## 1. Routine Owner Tasks
+Open the private site while signed in to the owning ChatGPT account. Try a category and search together; tap a heart to save a dish. Tap a dish for details, + to build an enquiry, then My enquiry to change quantities and copy a message. Cake enquiries have their own planner. Nothing is sent automatically.
 
-### Signing In & Resetting Password
-- Visit `/admin/login` on the website.
-- Sign in using the authorised owner email address and password.
-- If you forget your password, use the **Reset Password** button on `/admin/login` to receive a password reset link via email.
-- **Security Note**: There is no public sign-up page. New admin accounts can only be granted by the project administrator adding the user's UID to the `admins` collection in Firestore.
+Only favourite dish IDs persist in this browser. Enquiries and cake ideas clear when reloading; there is no account sync. Private access is enforced by hosting, not by the robots tag.
 
-### Managing Menu Items (`/admin`)
-- **Adding or Editing an Item**: Use **New Menu Item** or **Edit** on any item card.
-- **Pricing Modes**:
-  - **Fixed Price (`fixed`)**: Standard set price in Rands (e.g., `R 120.00`).
-  - **Starting From (`from`)**: Minimum confirmed starting price (e.g., `From R 450.00`).
-  - **Custom Quote (`quote`)**: Used for bespoke cakes or platters where price depends on customer requirements. Never enter `R 0` for quote items.
-- **Sold Out vs. Unpublished**:
-  - **Sold Out (`soldOut = true`)**: The item stays visible on the public menu so customers know you offer it, but it shows a **Sold Out** badge and disables direct order enquiries.
-  - **Unpublished (`published = false`)**: Hides the item completely from the public website. Use **Unpublish** as the default way to remove seasonal or discontinued items.
-- **Running a Timed Special**:
-  - Enable **Special Offer** on the item and optionally set a **Start Date/Time** and **End Date/Time** (South African time, `Africa/Johannesburg`).
-  - Once the end time passes, the item automatically stops appearing in the **Featured Specials** section without needing manual edits.
+## Change the sample menu
 
-### Updating Business Details (`/admin/settings`)
-- Update your public **WhatsApp number** (digits including `27` country code), **telephone**, **physical address**, **Google Maps link**, and **Monday–Sunday opening hours**.
-- Changes take effect immediately on the public site once saved.
+Edit `src/data/menu.seed.ts`: amount is supplied to the helper in rands then stored as integer cents. Use null for individually quoted cakes. Mark `soldOut` to disable adding; set `published:false` to hide a dish. `featured` controls the favourite badge; `sortOrder` sets default order. Add approved images under `public/images`. Run tests and build before committing.
 
-## 2. Photographs & Media
+Owner editing through a sign-in dashboard is not yet implemented. Follow docs/firebase.md to add it securely. Do not present this preview as a completed owner CMS.
 
-- While in repository-hosted image mode (no cloud storage billing required), product photographs are optimised (`WebP`/`JPEG`, under `5 MiB`) and stored in `public/images/`.
-- If Firebase Cloud Storage is later approved and enabled on the Blaze plan, photos can be uploaded directly from the Menu Item form (`JPEG`, `PNG`, or `WebP` only, max `5 MiB`).
+## Public release still needs approval
 
-## 3. Backups, Rollback & Ongoing Maintenance
-
-| Responsibility | Frequency | Procedure |
-|---|---|---|
-| **Code & Frontend Rollback** | Per release | Managed via Git tags and Firebase Hosting release history. Rolling back Hosting restores code/UI only, not database records. |
-| **Firestore Data Export** | Monthly / Before major changes | Export `menuItems` and `settings` collections using Google Cloud / Firebase CLI export tools; test restore into the development emulator. |
-| **Dependency & Security Review** | Quarterly | Run `npm audit` and update dependencies on a branch; verify via CI before merging. |
-| **Billing & Usage Monitoring** | Monthly | Check Firebase console usage quotas and Google Cloud budget alerts (if Blaze plan is enabled). |
-| **Domain Renewal** | Annually | Confirm domain registrar auto-renewal and DNS status. |
+Confirm the content checklist, menu accuracy, map, WhatsApp, hours and originals for low-resolution crops. Finish and test the chosen data/editing layer. A code rollback restores frontend source, not future Firestore records or photos. Assign someone to content updates, dependencies, domain renewal and future billing/backups.

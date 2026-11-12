@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Read-only foundation. Owner writes stay denied until admin validation,
+    // auth onboarding and emulator rules tests are implemented together.
+    match /menuItems/{itemId} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+    match /settings/business { allow read: if true; allow write: if false; }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

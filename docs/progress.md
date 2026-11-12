@@ -2,10 +2,10 @@
 
 ## Current Status
 
-- **Current Milestone**: Milestone 2 — Public UI with Labelled Fixtures (**Complete — Ready for Review & GitHub Sync**)
+- **Current Milestone**: Milestone 2 — Public UI with Labelled Fixtures (**Complete & Verified on GitHub Actions CI + Live `gh-pages` Preview**)
 - **Active Workspace Path**: `C:\Users\fayes\.gemini\antigravity\scratch\dooks-meatlovers`
 - **GitHub Repository**: `https://github.com/sbonelo031fay/dooks-meatlovers`
-- **Branch**: `main`
+- **Branch**: `main` (source) & `gh-pages` (built static preview bundle)
 - **Previous Commit Hash (Milestone 1)**: `b584e62cbe43f244ac84550ee4f1b32a93db0bf2`
 
 ---

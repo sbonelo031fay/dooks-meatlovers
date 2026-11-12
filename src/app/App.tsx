@@ -38,8 +38,14 @@ export function AppRoutes() {
 }
 
 export function App() {
+  const rawBase = import.meta.env.BASE_URL;
+  const basename =
+    rawBase && rawBase !== '/' && rawBase !== './'
+      ? rawBase
+      : window.location.pathname.replace(/\/index\.html$/, '');
+
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename={basename}>
       <AppRoutes />
     </BrowserRouter>
   );

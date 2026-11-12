@@ -46,3 +46,16 @@ The current adapter is intentionally read-only. No admin screen pretends to auth
 ## Design and portability choices
 
 Standard CSS replaces the originally suggested Tailwind utility layer for this first preview, keeping the colour tokens and responsive rules visible in one file. React Router, TypeScript, Vite, npm and Firebase modular SDK remain standard packages. No Sites runtime is required to run the downloaded source; `.openai/hosting.json` only configures its current private deployment.
+
+
+## Favourite storage validation
+
+```mermaid
+flowchart LR
+  A[Browser storage] --> B[parseSavedIds: validate and deduplicate IDs]
+  B --> C[App favourite state]
+  C --> D[Menu cards and saved filter]
+  C --> E[Persist IDs or show storage warning]
+```
+
+Only favourite IDs cross this storage boundary. Enquiry quantities and cake drafts stay in memory. This small pure helper is tested separately; the repository remains the only menu data access boundary.

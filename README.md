@@ -48,35 +48,43 @@ Start at [docs/architecture.md](docs/architecture.md) for the visual map, then [
 | Data source | `src/repositories/menuRepository.ts` |
 | Firebase configuration | `src/lib/firebase/client.ts` |
 
-## GitHub and another device
+## One repository across Antigravity, VS Code and Codex
 
-The private Sites source is backed by Git. A **personal GitHub repository has not been created**. To transfer the supplied ZIP, extract it, create an **empty private** GitHub repository named `dooks-meatlovers` in your account, then run these commands from the extracted project folder (replace the URL):
+Use the existing repository: [sbonelo031fay/dooks-meatlovers](https://github.com/sbonelo031fay/dooks-meatlovers). This GitHub repository is currently public; the reference Sites website has separate private access. Never commit secrets, `.env.local`, personal enquiry details or service-account files.
 
-```sh
-git init -b main
-git add .
-git commit -m "Build private Dooks Meatlovers interactive preview"
-git remote add origin https://github.com/YOUR_ACCOUNT/dooks-meatlovers.git
-git push -u origin main
-```
-
-If you are using the existing Sites Git checkout instead of the ZIP, **do not reinitialise or replace its origin**. Add a second remote:
+Clone once per device, then open that same folder in your preferred IDE. Do not copy another complete source folder into it or run `git init` again:
 
 ```sh
-git remote add github https://github.com/YOUR_ACCOUNT/dooks-meatlovers.git
-git push -u github main
-```
-
-On another computer:
-
-```sh
-git clone https://github.com/YOUR_ACCOUNT/dooks-meatlovers.git
+git clone https://github.com/sbonelo031fay/dooks-meatlovers.git
 cd dooks-meatlovers
 npm ci
 npm run dev
 ```
 
-For ongoing work: inspect `git status`, `git pull --ff-only`, create `feat/your-task`, edit, run checks, commit and push. Use the same repository in every editor. Read `AGENTS.md` and `docs/progress.md` before asking Codex to continue. Source control contains code, **not future Firebase records/uploads**.
+Before editing in any IDE:
+
+```sh
+git status
+git fetch origin
+git switch main
+git pull --ff-only
+git switch -c fix/your-task
+```
+
+If `git status` shows your work, commit it on its own branch before switching; do not discard or overwrite it. Coordinate one editing branch at a time across IDEs. Before pushing, fetch again, inspect `git diff origin/main...HEAD`, and merge/rebase incoming work deliberately if needed. Run `npm test`, `npm run typecheck` and `npm run build`, then push your feature branch and open a pull request.
+
+The current quality pass is on `fix/mobile-menu-quality`. To review it on another device after it has been pushed:
+
+```sh
+git fetch origin
+git switch --track origin/fix/mobile-menu-quality
+npm ci
+npm run dev
+```
+
+If you already have that local branch, use `git switch fix/mobile-menu-quality` followed by `git pull --ff-only` instead. Source control contains code, not future Firebase records/uploads. Read `AGENTS.md` and `docs/progress.md` when handing work between tools.
+
+**Deployment:** the existing GitHub Actions workflow publishes `gh-pages` on pushes to `main`. A feature-branch push does not publish; its pull request runs checks only. Merging that PR into `main` will trigger the existing deployment. Do not merge or push to `main` without release approval. This workflow is separate from private Sites hosting.
 
 ## Firebase path
 
@@ -84,4 +92,4 @@ Read [docs/firebase.md](docs/firebase.md). The actual read adapter is implemente
 
 ## Hosting and privacy
 
-This delivery uses private Sites hosting, identified in `.openai/hosting.json`. Keep the Site audience private. `noindex` is additional metadata, not access control. Do not run a Firebase Hosting deploy or change Site sharing without explicit approval; default Firebase Hosting is not this private audience. Public release requires the content checklist and owner approval.
+The reference website uses private Sites hosting. Its separate source checkout contains `.openai/hosting.json`; that file is not present in this GitHub repository. Keep the Site audience private. `noindex` is additional metadata, not access control. Do not run a Firebase Hosting deploy or change Site sharing without explicit approval; default Firebase Hosting is not this private audience. Public release requires the content checklist and owner approval.

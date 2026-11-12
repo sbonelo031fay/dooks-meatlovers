@@ -152,15 +152,17 @@ describe('Milestone 2 Public UI & Routes', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders 404 NotFoundPage on unknown routes', () => {
+  it('renders 404 NotFoundPage on unknown routes', async () => {
     render(
       <MemoryRouter initialEntries={['/unknown-grill-route']}>
         <AppRoutes />
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole('heading', { name: /Nothing Smoking on This Grill/i }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /Nothing Smoking on This Grill/i }),
+      ).toBeInTheDocument();
+    });
   });
 });

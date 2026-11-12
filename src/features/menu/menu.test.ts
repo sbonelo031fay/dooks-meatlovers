@@ -29,3 +29,15 @@ describe('menu business rules', () => {
     expect(result[0].pricing.amountCents).toBe(3000);
   });
 });
+
+
+describe('external menu image boundary', () => {
+  it('rejects unsafe remote URLs and accepts local or HTTPS assets', () => {
+    for (const url of ['//untrusted.example/photo', '/\\untrusted.example/photo', 'javascript:alert(1)', 'http://example.com/photo', 'https://example.com/ bad']) {
+      expect(() => validateItem({ ...menuSeed[0], image: { ...menuSeed[0].image, url } })).toThrow();
+    }
+    for (const url of ['/images/burger.webp', '/dooks-meatlovers/images/burger.webp', './images/burger.webp', '../images/burger.webp', 'https://example.com/photo.webp']) {
+      expect(validateItem({ ...menuSeed[0], image: { ...menuSeed[0].image, url } }).image.url).toBe(url);
+    }
+  });
+});

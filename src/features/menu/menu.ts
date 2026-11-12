@@ -1,5 +1,12 @@
 import type { MenuItem, Pricing } from './types';
 
+/** Accept local paths and HTTPS images without allowing protocol-relative URLs. */
+function isSafeImageUrl(value: string): boolean {
+  if (value.includes('\\') || /[\u0000-\u0020]/.test(value)) return false;
+  if (/^(\/(?!\/)|\.\.?\/)/.test(value)) return true;
+  try { return new URL(value).protocol === 'https:'; } catch { return false; }
+}
+
 const rand = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 2, minimumFractionDigits: 0 });
 
 export function formatPrice(pricing: Pricing): string {
@@ -26,7 +33,7 @@ export function validateItem(value: unknown): MenuItem {
     (p.type === 'quote' ? p.amountCents !== null : !['fixed', 'from'].includes(p.type) || !Number.isSafeInteger(p.amountCents) || (p.amountCents ?? 0) <= 0) ||
     typeof x.published !== 'boolean' || typeof x.soldOut !== 'boolean' || typeof x.featured !== 'boolean' ||
     !Number.isSafeInteger(x.sortOrder) || !image || typeof image.url !== 'string' ||
-    !/^(https:\/\/|\/|\.\.?\/)/.test(image.url) || typeof image.alt !== 'string' ||
+    !isSafeImageUrl(image.url) || typeof image.alt !== 'string' ||
     !s || typeof s.enabled !== 'boolean' ||
     ![s.startsAt, s.endsAt].every(d => d === null || (typeof d === 'string' && Number.isFinite(Date.parse(d)))) ||
     (s.startsAt && s.endsAt && Date.parse(s.endsAt) <= Date.parse(s.startsAt))) {

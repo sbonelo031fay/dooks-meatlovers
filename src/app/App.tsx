@@ -1,16 +1,14 @@
 import { createContext, useContext, useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, NavLink, Route, Routes, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, CakeSlice, Check, ChefHat, Clipboard, Flame, Heart, Instagram, Leaf, MapPin, Menu as MenuIcon, Minus, Plus, Search, ShoppingBag, SlidersHorizontal, Sparkles, Utensils, X } from 'lucide-react';
+import { Link, NavLink, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight, CakeSlice, Check, ChefHat, Clipboard, Flame, Heart, Instagram, Leaf, MapPin, Menu as MenuIcon, Minus, Plus, Search, ShoppingBag, SlidersHorizontal, Sparkles, Utensils, X } from 'lucide-react';
 import { Modal } from '../components/Modal';
 import { MenuCard } from '../components/MenuCard';
 import { categories, type EnquiryLine, type MenuItem } from '../features/menu/types';
 import { filterMenu, formatPrice } from '../features/menu/menu';
 import { useMenu } from '../features/menu/useMenu';
+import { parseSavedIds } from '../features/favourites/storage';
 import { isDemoMode } from '../repositories/menuRepository';
 
-function readStored<T>(key: string, fallback: T, validate: (value: unknown) => boolean): T {
-  try { const value: unknown = JSON.parse(localStorage.getItem(key) ?? 'null'); return validate(value) ? value as T : fallback; } catch { return fallback; }
-}
 type Store = ReturnType<typeof useMenu> & {
   saved: string[]; toggleSaved(id: string): void; lines: EnquiryLine[];
   addItem(id: string): void; changeQuantity(id: string, quantity: number): void;
@@ -21,14 +19,15 @@ function useShop() { const value = useContext(ShopContext); if (!value) throw ne
 
 export function App() {
   const menu = useMenu();
-  const [saved, setSaved] = useState<string[]>(() => readStored('dooks.saved.v1', [], x => Array.isArray(x) && x.every(i => typeof i === 'string')));
+  const [saved, setSaved] = useState<string[]>(() => { try { return parseSavedIds(localStorage.getItem('dooks.saved.v1')); } catch { return []; } });
+  const [storageFailed, setStorageFailed] = useState(false);
   const [lines, setLines] = useState<EnquiryLine[]>([]);
   const [selected, setSelected] = useState<MenuItem | null>(null);
   const [bagOpen, setBagOpen] = useState(false);
   const [toast, setToast] = useState('');
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const location = useLocation();
-  useEffect(() => { try { localStorage.setItem('dooks.saved.v1', JSON.stringify(saved)); } catch { /* Browsing works without storage. */ } }, [saved]);
+  useEffect(() => { try { localStorage.setItem('dooks.saved.v1', JSON.stringify(saved)); setStorageFailed(false); } catch { setStorageFailed(true); } }, [saved]);
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => {
     if (location.hash) requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView());
@@ -47,6 +46,7 @@ export function App() {
   return <ShopContext.Provider value={store}>
     <a className="skip-link" href="#main">Skip to content</a>
     <Header />
+    {storageFailed && <p className="storage-warning" role="status">Favourites are available for this visit, but this browser cannot save them for next time.</p>}
     <main id="main"><Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/menu" element={<MenuPage />} />
@@ -67,18 +67,19 @@ export function App() {
 
 function Brand() { return <span className="brand"><span className="brand-name">DOOKS<span className="brand-flame"><Flame size={22} fill="currentColor" /></span></span><span className="brand-sub">MEATLOVERS</span></span>; }
 function Header() {
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const { saved, lines, openBag } = useShop();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   useEffect(() => setMobileOpen(false), [location]);
   return <>
     {isDemoMode && <div className="preview-notice"><span className="preview-dot" />PRIVATE PREVIEW <span className="notice-divider">/</span><span>Poster guide prices. Current menu to be confirmed.</span></div>}
-    <header className="site-header"><div className="header-content page-container">
+    <header className="site-header" onKeyDown={event => { if (event.key === 'Escape' && mobileOpen) { setMobileOpen(false); toggleRef.current?.focus(); } }}><div className="header-content page-container">
       <Link className="brand-link" to="/" aria-label="Dooks Meatlovers home"><Brand /></Link>
       <nav className="desktop-nav" aria-label="Main navigation"><NavLink to="/" end>Home</NavLink><NavLink to="/menu">Our menu</NavLink><Link to="/#cakes">Custom cakes</Link><Link to="/#our-story">Our story</Link><Link to="/#visit">Find us</Link></nav>
       <div className="header-actions"><Link className="icon-button saved-nav" to="/menu?saved=1" aria-label={`Saved favourites, ${saved.length} items`}><Heart size={21} />{saved.length > 0 && <span className="count-dot">{saved.length}</span>}</Link>
         <button className="enquiry-button" onClick={openBag} aria-label={`Open enquiry list, ${lines.reduce((n, x) => n + x.quantity, 0)} items`}><ShoppingBag size={18} /><span>My enquiry</span><b>{lines.reduce((n, x) => n + x.quantity, 0)}</b></button>
-        <button className="icon-button menu-toggle" onClick={() => setMobileOpen(x => !x)} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} aria-controls="mobile-nav">{mobileOpen ? <X /> : <MenuIcon />}</button>
+        <button ref={toggleRef} className="icon-button menu-toggle" onClick={() => setMobileOpen(x => !x)} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} aria-controls="mobile-nav">{mobileOpen ? <X /> : <MenuIcon />}</button>
       </div>
     </div>
     {mobileOpen && <nav id="mobile-nav" className="mobile-nav" aria-label="Mobile navigation"><Link to="/">Home</Link><Link to="/menu">Our menu <ArrowUpRight size={19} /></Link><Link to="/#cakes">Custom cakes</Link><Link to="/#our-story">Our story</Link><Link to="/#visit">Find us</Link><Link to="/menu?saved=1">Saved favourites ({saved.length})</Link></nav>}
@@ -123,16 +124,16 @@ function MenuBrowser({ standalone = false }: { standalone?: boolean }) {
   const availableOnly = params.get('available') === '1';
   const sort = params.get('sort') ?? 'featured';
   const filtered = filterMenu(items, { category, search, savedOnly, saved, availableOnly, sort });
-  function setFilter(key: string, value: string) { const next = new URLSearchParams(window.location.search); value ? next.set(key, value) : next.delete(key); setParams(next, { replace: true, preventScrollReset: true }); }
+  function setFilter(key: string, value: string) { const next = new URLSearchParams(params); value ? next.set(key, value) : next.delete(key); setParams(next, { replace: true, preventScrollReset: true }); }
   function reset() { setParams({}, { replace: true, preventScrollReset: true }); }
   return <section className={`menu-section page-container ${standalone ? 'standalone-menu' : ''}`} id="menu">
     <div className="section-heading"><div><span className="eyebrow"><Utensils size={15} />THE GOOD STUFF</span><Heading>{savedOnly ? <>YOUR SAVED <em>FAVOURITES.</em></> : <>WHAT ARE YOU <em>CRAVING?</em></>}</Heading></div><p>A proper feed, whatever your mood.<br />Find something that hits the spot.</p></div>
     <div className="category-filters" aria-label="Menu categories">{categories.map((x, index) => <button key={x.id} className={category === x.id ? 'category active' : 'category'} aria-pressed={category === x.id} onClick={() => setFilter('category', x.id === 'all' ? '' : x.id)}>{index === 0 ? <Utensils size={16} /> : index === 1 ? <Flame size={16} /> : index === 5 ? <CakeSlice size={17} /> : null}{x.label}{category === x.id && <span>{items.filter(i => x.id === 'all' || i.category === x.id).length}</span>}</button>)}</div>
-    <div className="menu-toolbar"><label className="search-input"><Search size={19} /><span className="sr-only">Search the menu</span><input aria-label="Search the menu" value={search} onChange={e => setFilter('search', e.target.value)} placeholder="Find your next favourite…" type="search" />{search && <button className="clear-search" aria-label="Clear search" onClick={() => setFilter('search', '')}><X size={17} /></button>}</label>
+    <div className="menu-toolbar"><div className="search-input"><Search size={19} /><span className="sr-only">Search the menu</span><input aria-label="Search the menu" value={search} onChange={e => setFilter('search', e.target.value)} placeholder="Find your next favourite…" type="search" enterKeyHint="search" autoComplete="off" />{search && <button className="clear-search" aria-label="Clear search" onClick={() => setFilter('search', '')}><X size={17} /></button>}</div>
       <div className="toolbar-controls"><button className={`filter-chip ${savedOnly ? 'selected' : ''}`} aria-pressed={savedOnly} onClick={() => setFilter('saved', savedOnly ? '' : '1')}><Heart size={16} fill={savedOnly ? 'currentColor' : 'none'} />Saved{saved.length ? ` (${saved.length})` : ''}</button>
       <label className="sort-label"><SlidersHorizontal size={16} /><span className="sr-only">Sort menu</span><select value={sort} onChange={e => setFilter('sort', e.target.value)}><option value="featured">Dooks favourites</option><option value="price">Price: low to high</option><option value="name">Name: A–Z</option></select></label></div>
     </div>
-    <div className="menu-meta"><span role="status">{status === 'ready' ? `${filtered.length} ${filtered.length === 1 ? 'dish' : 'dishes'} to discover` : status === 'loading' ? 'Getting the menu ready…' : 'Menu unavailable'}</span><label><input type="checkbox" checked={availableOnly} onChange={e => setFilter('available', e.target.checked ? '1' : '')} />Hide sold-out items</label></div>
+    <div className="menu-meta">{(category !== 'all' || search || savedOnly || availableOnly || sort !== 'featured') && <button className="reset-filters" onClick={reset}>Reset filters</button>}<span role="status">{status === 'ready' ? `${filtered.length} ${filtered.length === 1 ? 'dish' : 'dishes'} to discover` : status === 'loading' ? 'Getting the menu ready…' : 'Menu unavailable'}</span><label><input type="checkbox" checked={availableOnly} onChange={e => setFilter('available', e.target.checked ? '1' : '')} />Hide sold-out items</label></div>
     {status === 'loading' && <div className="food-grid" aria-busy="true" aria-label="Loading menu">{[1, 2, 3].map(x => <div className="skeleton" key={x} />)}</div>}
     {status === 'error' && <div className="empty-state" role="alert"><ChefHat size={36} /><h3>The menu needs a moment.</h3><p>We couldn’t load the menu. Please try again.</p><button className="button primary" onClick={retry}>Try again <ArrowRight size={17} /></button></div>}
     {status === 'ready' && filtered.length === 0 && <div className="empty-state"><Search size={34} /><h3>{savedOnly ? 'Your next favourite is waiting.' : 'Nothing on this plate yet.'}</h3><p>{savedOnly ? 'Tap a heart on any dish to save it, or adjust your filters.' : 'Try another search or clear your filters to explore the whole menu.'}</p><button className="button primary" onClick={reset}>Explore all dishes <ArrowRight size={17} /></button></div>}

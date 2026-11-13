@@ -124,7 +124,15 @@ function MenuBrowser({ standalone = false }: { standalone?: boolean }) {
   const availableOnly = params.get('available') === '1';
   const sort = params.get('sort') ?? 'featured';
   const filtered = filterMenu(items, { category, search, savedOnly, saved, availableOnly, sort });
-  function setFilter(key: string, value: string) { const next = new URLSearchParams(params); value ? next.set(key, value) : next.delete(key); setParams(next, { replace: true, preventScrollReset: true }); }
+  function setFilter(key: string, value: string) {
+    const next = new URLSearchParams(params);
+    if (value) {
+      next.set(key, value);
+    } else {
+      next.delete(key);
+    }
+    setParams(next, { replace: true, preventScrollReset: true });
+  }
   function reset() { setParams({}, { replace: true, preventScrollReset: true }); }
   return <section className={`menu-section page-container ${standalone ? 'standalone-menu' : ''}`} id="menu">
     <div className="section-heading"><div><span className="eyebrow"><Utensils size={15} />THE GOOD STUFF</span><Heading>{savedOnly ? <>YOUR SAVED <em>FAVOURITES.</em></> : <>WHAT ARE YOU <em>CRAVING?</em></>}</Heading></div><p>A proper feed, whatever your mood.<br />Find something that hits the spot.</p></div>

@@ -21,11 +21,19 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Check whitespace and patch hygiene
+        run: git diff --check $(git hash-object -t tree /dev/null) HEAD
+
       - run: npm ci
 
       - run: npm run typecheck
 
       - run: npm test
+
+      - name: Build production bundle (root /)
+        env:
+          VITE_DATA_SOURCE: demo
+        run: npm run build
 
       - name: Build production bundle (GitHub Pages subpath + SPA 404 fallback)
         env:

@@ -24,7 +24,9 @@ jobs:
       - name: Check whitespace and patch hygiene
         run: git diff --check $(git hash-object -t tree /dev/null) HEAD
 
-      - run: npm ci
+      - run: npm install
+
+      - run: npm run lint
 
       - run: npm run typecheck
 

@@ -2,7 +2,7 @@ import type { MenuItem, Pricing } from './types';
 
 /** Accept local paths and HTTPS images without allowing protocol-relative URLs. */
 function isSafeImageUrl(value: string): boolean {
-  if (value.includes('\\') || /[\u0000-\u0020]/.test(value)) return false;
+  if (value.includes('\\') || [...value].some((ch) => ch.charCodeAt(0) <= 0x20)) return false;
   if (/^(\/(?!\/)|\.\.?\/)/.test(value)) return true;
   try { return new URL(value).protocol === 'https:'; } catch { return false; }
 }
